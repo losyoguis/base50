@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+  <title>Entrenador Base 50 / Conti · Versión 2.38</title>
+  <meta name="description" content="Entrenador de billar tres bandas para practicar el Sistema Base 50 o Conti con física, taco, sonido, numeración y curso integrado." />
+  <meta name="theme-color" content="#07110e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Base 50" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="app-version" content="base50-conti-v2.38-movimiento-natural" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hud">
+      <div class="hud-row">
+        <div class="title-block">
+          <p class="eyebrow">Billar tres bandas · Sistema Base 50 / Conti</p>
+          <h1>Entrenador Base 50</h1>
+          <p class="route-subtitle">Larga - Corta - Larga</p>
+          <p class="app-subtitle">Practica solo el sistema <span class="highlight">Salida − Llegada = Ataque</span> con ruta real: salida → ataque → banda corta → llegada.</p>
+          <div class="subtitle-actions" aria-label="Acciones de ayuda y curso">
+            <button id="courseBtn" class="instructions-btn secondary" type="button" aria-haspopup="dialog" aria-controls="courseModal">Curso Base 50 / Conti</button>
+          </div>
+        </div>
+        <section class="scoreboard" aria-label="Marcador de entrenamiento">
+          <div class="stat"><div class="label">Aciertos</div><div id="score" class="value">0</div></div>
+          <div class="stat"><div class="label">Intentos</div><div id="attempts" class="value">0</div></div>
+          <div class="stat"><div class="label">Bandas</div><div id="cushions" class="value">0</div></div>
+          <button id="resetScoreBtn" class="reset-score-btn" type="button">Reiniciar</button>
+        </section>
+      </div>
+      <div class="guide" aria-live="polite"><strong id="topFormula">Salida − Llegada = Ataque</strong> <span id="topHint">Salida, entrada y llegada se sincronizan con un decimal al mover taco y bolas; hala el taco para ajustar la potencia y tira para analizar la carambola.</span></div>
+    </section>
+
+    <section id="trainerCard" class="trainer-card" aria-label="Entrenador interactivo Base 50 Conti" tabindex="-1">
+      <div class="trainer-head compact">
+        <div>
+          <p class="eyebrow">Mesa interactiva</p>
+          <h2>Práctica Base 50 / Conti</h2>
+        </div>
+        <div class="legend">
+          <span class="legend-item exit">Salida</span>
+          <span class="legend-item attack">Ataque</span>
+          <span class="legend-item arrival">Llegada</span>
+          <span class="legend-item connector">Ruta real</span>
+        </div>
+      </div>
+
+      <section class="practice-panel open manual-open" aria-label="Opciones principales de práctica Base 50">
+        <div class="practice-top">
+          <div class="practice-controls compact-select-row base50-controls">
+            <label>Salida
+              <input id="exitSelect" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="50.0" />
+            </label>
+            <label>Llegada
+              <input id="arrivalSelect" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="20.0" />
+            </label>
+            <label>Entrada
+              <input id="attackInput" type="number" inputmode="decimal" min="0" max="110" step="0.1" value="30.0" />
+            </label>
+            <label>Bandas
+              <select id="bandSelect">
+                <option value="3">3 bandas</option>
+                <option value="4">4 bandas</option>
+                <option value="5">5 bandas</option>
+                <option value="6">6 bandas</option>
+                <option value="7">7 bandas</option>
+                <option value="8">8 bandas</option>
+                <option value="9">9 bandas</option>
+                <option value="10">10 bandas</option>
+              </select>
+            </label>
+            <label class="shot-picker-label">Seleccionar jugada
+              <select id="shotSelect" aria-label="Seleccionar jugada Base 50">
+                <option value="">Seleccionar jugada</option>
+                <option value="jugada1">Jugada 1: 40 = 50 - 10</option>
+                <option value="jugada2">Jugada 2: 30 = 50 - 20</option>
+                <option value="jugada3">Jugada 3: 20 = 50 - 30</option>
+                <option value="jugada4">Jugada 4: 5 = 50 - 45</option>
+                <option value="jugada5">Jugada 5: llegada 50 = 50 - 0</option>
+                <option value="jugada6">Jugada 6: 0 = 60 - 0</option>
+                <option value="jugada7">Jugada 7: 50 = 60 - 10</option>
+              </select>
+            </label>
+          </div>
+          <div class="hidden-controls" aria-hidden="true">
+            <select id="modeSelect" tabindex="-1">
+              <option value="learn" selected>Aprender</option>
+              <option value="practice">Practicar</option>
+              <option value="challenge">Reto</option>
+              <option value="connectors">Conectores</option>
+              <option value="lab">Laboratorio</option>
+            </select>
+            <select id="exerciseSelect" tabindex="-1"></select>
+            <select id="effectSelect" tabindex="-1">
+              <option value="auto" selected>Automático por llegada</option>
+              <option value="1">Efecto 1</option>
+              <option value="2">Efecto 2</option>
+              <option value="3">Efecto 3</option>
+              <option value="4">Efecto 4</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section id="deflectionGuidePanel" class="deflection-guide-panel" aria-label="Guía dinámica de efecto, potencia y contacto real entre bolas">
+        <div class="deflection-guide-head">
+          <div>
+            <h3>Guía dinámica: contacto real entre bolas</h3>
+            <p id="deflectionGuideReadout" class="deflection-guide-readout">Ajusta efecto y grosor del golpe. La potencia se controla halando el taco en la mesa.</p>
+          </div>
+        </div>
+        <div class="deflection-guide-layout">
+          <div class="deflection-guide-stage-wrap">
+            <svg id="deflectionGuideSvg" class="deflection-guide-stage" viewBox="0 0 250 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <defs>
+                <radialGradient id="guideWhiteBallFill" cx="35%" cy="28%" r="70%">
+                  <stop offset="0%" stop-color="#ffffff"></stop>
+                  <stop offset="62%" stop-color="#f8f4ea"></stop>
+                  <stop offset="100%" stop-color="#d8d1c5"></stop>
+                </radialGradient>
+                <radialGradient id="guideRedBallFill" cx="35%" cy="28%" r="72%">
+                  <stop offset="0%" stop-color="#ff5c5c"></stop>
+                  <stop offset="56%" stop-color="#ca1515"></stop>
+                  <stop offset="100%" stop-color="#8e0909"></stop>
+                </radialGradient>
+                <filter id="guideBallGlow" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="4.2" result="blur" />
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <ellipse id="deflectionTargetShadow" cx="162" cy="84" rx="46" ry="11" fill="rgba(0,0,0,.34)"></ellipse>
+              <ellipse id="deflectionCueShadow" cx="118" cy="86" rx="44" ry="10" fill="rgba(0,0,0,.28)"></ellipse>
+              <circle id="deflectionTargetBall" cx="158" cy="60" r="34" fill="url(#guideRedBallFill)" stroke="#6e0505" stroke-width="2.6" filter="url(#guideBallGlow)"></circle>
+              <circle id="deflectionCueBall" cx="118" cy="60" r="36" fill="url(#guideWhiteBallFill)" stroke="#d7d0c4" stroke-width="2.6" filter="url(#guideBallGlow)"></circle>
+              <circle id="deflectionCueDot" cx="132" cy="46" r="6.4" fill="#2d57d8" stroke="#eef4ff" stroke-width="1.8"></circle>
+            </svg>
+          </div>
+          <div class="deflection-guide-controls">
+            <div class="deflection-guide-buttons" aria-label="Seleccionar efecto y grosor del impacto">
+              <button class="deflection-btn active" data-deflect-thickness="imagen" data-effect-value="auto" type="button">Efecto</button>
+              <button class="deflection-btn" data-deflect-thickness="fino" data-effect-value="1" type="button">Fino</button>
+              <button class="deflection-btn" data-deflect-thickness="1/4" data-effect-value="2" type="button">1/4 de bola</button>
+              <button class="deflection-btn" data-deflect-thickness="1/2" data-effect-value="2" type="button">1/2 bola</button>
+              <button class="deflection-btn" data-deflect-thickness="3/4" data-effect-value="3" type="button">3/4 de bola</button>
+              <button class="deflection-btn" data-deflect-thickness="llena" data-effect-value="4" type="button">Llena</button>
+            </div>
+            <p id="deflectionGuideStatus" class="deflection-guide-status">Efecto automático según la llegada. Mueve el punto azul sobre la bola blanca para cambiar el efecto.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-shell">
+        <div id="table" class="table" role="application" aria-label="Mesa Base 50 Conti">
+          <div class="cloth"></div>
+          <svg id="overlay" viewBox="0 0 1000 560" preserveAspectRatio="none" class="overlay" aria-hidden="true">
+            <defs>
+              <linearGradient id="cloth" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#1f8d63" />
+                <stop offset="58%" stop-color="#146a4a" />
+                <stop offset="100%" stop-color="#0e4d38" />
+              </linearGradient>
+              <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <marker id="arrowWhite" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L9,3 z" fill="#f5f8ff" />
+              </marker>
+            </defs>
+            <rect x="38" y="34" width="924" height="492" rx="24" fill="#4a2a14" />
+            <rect x="52" y="46" width="896" height="468" rx="18" fill="#2b180c" />
+            <rect x="78" y="72" width="844" height="414" rx="7" fill="url(#cloth)" stroke="#090f0c" stroke-width="8" />
+            <g id="diamondLayer"></g>
+            <g id="numberLayer"></g>
+            <g id="connectorLayer"></g>
+            <g id="parallelLayer"></g>
+            <g id="cueStickLayer"></g>
+            <polyline id="mathPath" class="math-path" points="" />
+            <polyline id="idealPath" class="ideal-path" points="" />
+            <polyline id="userPath" class="user-path" points="" />
+            <polyline id="aimPath" class="aim-path" points="" />
+            <g id="ballLayer"></g>
+          </svg>
+          <div id="cueBall" class="ball cue" title="Bola blanca: activar Mover bolas para arrastrar"></div>
+          <div id="effectControl" class="effect-control" aria-label="Control visual del efecto de la bola blanca">
+            <div id="effectBall" class="effect-ball" role="application" tabindex="0" aria-label="Control de efecto">
+              <span id="effectDot" class="effect-dot"></span>
+            </div>
+          </div>
+          <div id="redBall" class="ball red" title="Bola roja: activar Mover bolas para arrastrar"></div>
+          <div id="yellowBall" class="ball yellow" title="Bola amarilla: activar Mover bolas para arrastrar"></div>
+          <div id="powerBadge" class="power-badge">Potencia 55%</div>
+          <div id="caromFlash" class="carom-flash">¡Carambola!</div>
+        </div>
+      </section>
+
+      <div class="buttons table-action-bar bottom-table-actions" aria-label="Controles principales de la mesa">
+        <button id="solveBtn" type="button">Resolver</button>
+        <button id="linesBtn" type="button" class="secondary">Líneas salida-ataque</button>
+        <button id="guideBtn" type="button" class="secondary">Guía: ON</button>
+        <button id="placeBtn" type="button" class="secondary">Mover bolas: OFF</button>
+        <button id="soundBtn" type="button" class="secondary">Sonido: ON</button>
+        <button id="fullTableBtn" type="button" class="secondary">Mesa completa</button>
+        <button id="randomBtn" type="button" class="secondary">Nueva posición</button>
+        <button id="repeatBtn" type="button" class="secondary">Repetir</button>
+        <button id="replayBtn" type="button" class="secondary">Replay</button>
+        <button id="shootBtn" type="button" class="primary">Tirar</button>
+      </div>
+
+      <section class="readout-card">
+        <div class="calc-panel precision-card">
+          <span class="mini-label">Números precisos</span>
+          <div class="precision-grid precision-grid-editable" aria-label="Valores precisos con un decimal">
+            <div class="precision-control" data-field="exit">
+              <b>Salida</b>
+              <div class="precision-number-row">
+                <span class="precision-side left-side" aria-label="Enteros de salida">
+                  <button class="precision-step" data-field="exit" data-delta="-1" type="button" title="Bajar entero de salida">−</button>
+                  <button class="precision-step" data-field="exit" data-delta="1" type="button" title="Subir entero de salida">+</button>
+                </span>
+                <strong id="preciseExit">50.0</strong>
+                <span class="precision-side right-side" aria-label="Décimas de salida">
+                  <button class="precision-step" data-field="exit" data-delta="-0.1" type="button" title="Bajar décima de salida">−</button>
+                  <button class="precision-step" data-field="exit" data-delta="0.1" type="button" title="Subir décima de salida">+</button>
+                </span>
+              </div>
+              <small>Izq. enteros · Der. décimas</small>
+            </div>
+            <div class="precision-control" data-field="attack">
+              <b>Entrada</b>
+              <div class="precision-number-row">
+                <span class="precision-side left-side" aria-label="Enteros de entrada">
+                  <button class="precision-step" data-field="attack" data-delta="-1" type="button" title="Bajar entero de entrada">−</button>
+                  <button class="precision-step" data-field="attack" data-delta="1" type="button" title="Subir entero de entrada">+</button>
+                </span>
+                <strong id="preciseAttack">30.0</strong>
+                <span class="precision-side right-side" aria-label="Décimas de entrada">
+                  <button class="precision-step" data-field="attack" data-delta="-0.1" type="button" title="Bajar décima de entrada">−</button>
+                  <button class="precision-step" data-field="attack" data-delta="0.1" type="button" title="Subir décima de entrada">+</button>
+                </span>
+              </div>
+              <small>Entrada = ataque</small>
+            </div>
+            <div class="precision-control" data-field="arrival">
+              <b>Llegada</b>
+              <div class="precision-number-row">
+                <span class="precision-side left-side" aria-label="Enteros de llegada">
+                  <button class="precision-step" data-field="arrival" data-delta="-1" type="button" title="Bajar entero de llegada">−</button>
+                  <button class="precision-step" data-field="arrival" data-delta="1" type="button" title="Subir entero de llegada">+</button>
+                </span>
+                <strong id="preciseArrival">20.0</strong>
+                <span class="precision-side right-side" aria-label="Décimas de llegada">
+                  <button class="precision-step" data-field="arrival" data-delta="-0.1" type="button" title="Bajar décima de llegada">−</button>
+                  <button class="precision-step" data-field="arrival" data-delta="0.1" type="button" title="Subir décima de llegada">+</button>
+                </span>
+              </div>
+              <small>Izq. enteros · Der. décimas</small>
+            </div>
+          </div>
+          <small id="preciseDetail">Lectura sincronizada con un decimal: salida, entrada y llegada.</small>
+        </div>
+        <div class="calc-panel">
+          <span class="mini-label">Cálculo</span>
+          <strong id="formulaReadout">50.0 − 20.0 = 30.0</strong>
+          <small id="formulaDetail">Salida 50.0 · Llegada 20.0 · Entrada/Ataque 30.0</small>
+        </div>
+        <div class="calc-panel">
+          <span class="mini-label">Efecto</span>
+          <strong id="effectReadout">Efecto 2</strong>
+          <small id="effectDetail">Según la llegada en la banda larga inferior</small>
+        </div>
+        <div class="calc-panel">
+          <span class="mini-label">Zona de ataque</span>
+          <strong id="zoneReadout">Ángulo medio</strong>
+          <small id="zoneDetail">Conector de tercera a cuarta banda</small>
+        </div>
+      </section>
+
+      <section class="feedback" aria-live="polite">
+        <div>
+          <p class="eyebrow">Diagnóstico</p>
+          <h3 id="feedbackTitle">Listo para entrenar</h3>
+          <p id="feedbackBody">Practica Base 50 / Conti: calcula, hala el taco para ajustar la potencia, apunta y observa la física con más de tres bandas y colisiones entre las bolas.</p>
+        </div>
+        <div class="meter-wrap">
+          <span>Corta</span>
+          <div class="meter"><i id="meterNeedle"></i></div>
+          <span>Larga</span>
+        </div>
+      </section>
+
+      <section id="labLogWrap" class="lab-log" aria-label="Laboratorio de práctica">
+        <div class="panel-head">
+          <h3>Laboratorio</h3>
+          <button id="clearLogBtn" class="small secondary" type="button">Limpiar</button>
+        </div>
+        <div id="labLog" class="log-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="courseModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle" hidden>
+    <div class="modal-backdrop" data-close-course></div>
+    <section class="modal-card course-card" tabindex="-1">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">Curso integrado</p>
+          <h2 id="courseModalTitle">Base 50 / Conti</h2>
+        </div>
+        <button id="closeCourseBtn" class="close-btn" type="button" aria-label="Cerrar curso">×</button>
+      </div>
+      <section class="course-video-block" aria-label="Videos del curso Base 50 Conti">
+        <div class="course-video-head">
+          <div>
+            <h3>Video del curso</h3>
+            <p id="courseVideoTitle">Introducción · Sistema Base 50 / Conti</p>
+            <p id="courseVideoSource" class="course-video-source">Pantallas no móviles: Google Drive · móviles: YouTube</p>
+          </div>
+          <a class="youtube-open-link" href="https://drive.google.com/file/d/15x4tAORO8t-rHWH6scFcOEmt8PM1Iph_/view?usp=sharing" target="_blank" rel="noopener noreferrer">Abrir en Drive</a>
+        </div>
+        <div class="course-video-frame-wrap">
+          <iframe id="courseVideoFrame" src="https://drive.google.com/file/d/15x4tAORO8t-rHWH6scFcOEmt8PM1Iph_/preview" title="Introducción al Sistema Base 50 / Conti" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="course-video-tabs" aria-label="Seleccionar video del curso">
+          <button class="video-tab active" type="button" data-tab-id="intro" data-title="Introducción · Sistema Base 50 / Conti" data-drive-url="https://drive.google.com/file/d/15x4tAORO8t-rHWH6scFcOEmt8PM1Iph_/view?usp=sharing" data-drive="https://drive.google.com/file/d/15x4tAORO8t-rHWH6scFcOEmt8PM1Iph_/preview" data-youtube-url="https://www.youtube.com/watch?v=5znZKDlkxWc&list=PLtQU4SPo5OjCdfH_cpPT81B0oUYNkubZ6" data-youtube="https://www.youtube-nocookie.com/embed/5znZKDlkxWc?rel=0&list=PLtQU4SPo5OjCdfH_cpPT81B0oUYNkubZ6">Intro</button>
+          <button class="video-tab" type="button" data-tab-id="cap1" data-title="Cap. 1 · Numeración y ejecución" data-drive-url="https://drive.google.com/file/d/1lZ5lSWL9XjNwk2jrwBTnSVJXwO9ncnRB/view?usp=sharing" data-drive="https://drive.google.com/file/d/1lZ5lSWL9XjNwk2jrwBTnSVJXwO9ncnRB/preview" data-youtube-url="https://www.youtube.com/watch?v=o2kk7p6ig1Q" data-youtube="https://www.youtube-nocookie.com/embed/o2kk7p6ig1Q?rel=0">Cap. 1</button>
+          <button class="video-tab" type="button" data-tab-id="cap2" data-title="Cap. 2 · Práctica básica" data-drive-url="https://drive.google.com/file/d/1FE63K0gyQ6tVq_v5yK17KxhcalKHOwXz/view?usp=sharing" data-drive="https://drive.google.com/file/d/1FE63K0gyQ6tVq_v5yK17KxhcalKHOwXz/preview" data-youtube-url="https://www.youtube.com/watch?v=WAUCBS-_HuY" data-youtube="https://www.youtube-nocookie.com/embed/WAUCBS-_HuY?rel=0">Cap. 2</button>
+          <button class="video-tab" type="button" data-tab-id="cap3" data-title="Cap. 3 · Líneas de conexión" data-drive-url="https://drive.google.com/file/d/1qKfRffqJJLPL0oe3yepWNX4PkASEzrl_/view?usp=sharing" data-drive="https://drive.google.com/file/d/1qKfRffqJJLPL0oe3yepWNX4PkASEzrl_/preview" data-youtube-url="https://www.youtube.com/watch?v=JCIkrwZT5Ak" data-youtube="https://www.youtube-nocookie.com/embed/JCIkrwZT5Ak?rel=0">Cap. 3</button>
+          <button class="video-tab" type="button" data-tab-id="cap4" data-title="Cap. 4 · Compensaciones" data-drive-url="https://drive.google.com/file/d/1CHPef5Hjo4PVYMxrF-nberfyurHF1pXD/view?usp=sharing" data-drive="https://drive.google.com/file/d/1CHPef5Hjo4PVYMxrF-nberfyurHF1pXD/preview" data-youtube-url="https://www.youtube.com/watch?v=PfijWNWMb7M" data-youtube="https://www.youtube-nocookie.com/embed/PfijWNWMb7M?rel=0">Cap. 4</button>
+          <button class="video-tab" type="button" data-tab-id="cap5" data-title="Cap. 5 · Jugando contra bola" data-drive-url="https://drive.google.com/file/d/15mt9F_kM5DlRgowvRKgF6t4VN8fbwJ-c/view?usp=sharing" data-drive="https://drive.google.com/file/d/15mt9F_kM5DlRgowvRKgF6t4VN8fbwJ-c/preview" data-youtube-url="https://www.youtube.com/watch?v=jLBW71hhoXw" data-youtube="https://www.youtube-nocookie.com/embed/jLBW71hhoXw?rel=0">Cap. 5</button>
+          <button class="video-tab" type="button" data-tab-id="cap6" data-title="Cap. 6 · Ejemplos prácticos" data-drive-url="https://drive.google.com/file/d/1Z1Xb6ueIRB0tHiNWANAp-qUr01oFLdC_/view?usp=sharing" data-drive="https://drive.google.com/file/d/1Z1Xb6ueIRB0tHiNWANAp-qUr01oFLdC_/preview" data-youtube-url="https://www.youtube.com/watch?v=eLWIOvJjwaI" data-youtube="https://www.youtube-nocookie.com/embed/eLWIOvJjwaI?rel=0">Cap. 6</button>
+        </div>
+        <div class="course-shot-panel" aria-label="Jugadas del capítulo 2">
+          <p><strong>Jugadas del Capítulo 2:</strong> selecciona una jugada para ubicar el video y configurar la mesa.</p>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada1" data-video-tab="cap2" data-video-time="90" data-video-end="110">Jugada 1: 40 = 50 - 10 · 01:30 a 01:50</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada2" data-video-tab="cap2" data-video-time="130" data-video-end="145">Jugada 2: 30 = 50 - 20 · 02:10 a 02:25</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada3" data-video-tab="cap2" data-video-time="190" data-video-end="201">Jugada 3: 20 = 50 - 30 · 03:10 a 03:21</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada4" data-video-tab="cap2" data-video-time="340" data-video-end="350">Jugada 4: 5 = 50 - 45 · 05:40 a 05:50</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada5" data-video-tab="cap2" data-video-time="480" data-video-end="493">Jugada 5: llegada 50 = 50 - 0 · 08:00 a 08:13</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada6" data-video-tab="cap2" data-video-time="560" data-video-end="570">Jugada 6: 0 = 60 - 0 · 09:20 a 09:30</button>
+          <button class="course-shot-btn" type="button" data-shot-id="jugada7" data-video-tab="cap2" data-video-time="610" data-video-end="625">Jugada 7: 50 = 60 - 10 · 10:10 a 10:25</button>
+        </div>
+      </section>
+      <div id="moduleList" class="module-list" role="tablist" aria-label="Módulos del sistema"></div>
+      <article class="lesson" aria-live="polite">
+        <h3 id="lessonTitle">Introducción</h3>
+        <p id="lessonText">Selecciona un módulo para estudiar el sistema.</p>
+        <ul id="lessonBullets"></ul>
+      </article>
+      <article class="summary-box">
+        <h3>Resumen técnico</h3>
+        <ul>
+          <li><strong>Salida:</strong> escala proporcional interna 0–100, pero en la banda corta los únicos diamantes visibles son 60, 70 y 90.</li>
+          <li><strong>Ataque:</strong> banda larga superior con diamantes 10, 20, 30, 40, 50, 70 y 90; el 100 es proyección y la esquina final es 110.</li>
+          <li><strong>Llegada:</strong> banda larga inferior proporcional 0–100, sincronizada con el cálculo.</li>
+          <li><strong>Ruta real:</strong> salida → ataque → banda corta → llegada, con compensación por efecto, potencia y contra bola.</li>
+        </ul>
+      </article>
+      <article class="copyright-box" aria-label="Referencias y derechos de autor">
+        <h3>Referencias y derechos de autor</h3>
+        <p>En pantallas no móviles, los videos se muestran desde Google Drive usando los enlaces proporcionados por el docente. En móviles, la app usa YouTube para mejorar compatibilidad dentro de Google Sites. Esta app no descarga, copia ni redistribuye los archivos de video; solo los incrusta como apoyo educativo. Los derechos de autor pertenecen a sus creadores y se deben respetar las condiciones de uso de Google Drive, YouTube y del canal original.</p>
+        <ol>
+          <li><strong>AM Billiard Academy.</strong> Introducción · Sistema Base 50 / Billar a tres bandas. <a href="https://www.youtube.com/watch?v=5znZKDlkxWc&list=PLtQU4SPo5OjCdfH_cpPT81B0oUYNkubZ6" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 1: Numeración y ejecución. <a href="https://www.youtube.com/watch?v=o2kk7p6ig1Q" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 2: Práctica básica. <a href="https://www.youtube.com/watch?v=WAUCBS-_HuY" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 3: Líneas de conexión. <a href="https://www.youtube.com/watch?v=JCIkrwZT5Ak" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 4: Compensaciones. <a href="https://www.youtube.com/watch?v=PfijWNWMb7M" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 5: Jugando contra bola. <a href="https://www.youtube.com/watch?v=jLBW71hhoXw" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+          <li><strong>AM Billiard Academy.</strong> Sistema Base 50, Cap. 6: Ejemplos prácticos. <a href="https://www.youtube.com/watch?v=eLWIOvJjwaI" target="_blank" rel="noopener noreferrer">Ver en YouTube</a>.</li>
+        </ol>
+        <p><strong>Uso recomendado:</strong> material referenciado con fines educativos y de práctica deportiva. Para cualquier reproducción, distribución o uso comercial del contenido audiovisual, consultar directamente las condiciones del canal original, YouTube y el propietario de los archivos en Drive.</p>
+      </article>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
